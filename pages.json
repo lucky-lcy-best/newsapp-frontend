@@ -1,0 +1,71 @@
+{
+	"easycom": {
+		"^u-(.*)": "@/uview-ui/components/u-$1/u-$1.vue"
+	},
+	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
+		{
+		    "path" : "pages/news-titles/news-titles",
+		    "style" :                                                                                    
+		    {
+				"navigationBarTitleText":"首页",
+				"enablePullDownRefresh":true
+				
+		    }
+		    
+		},
+		{
+			"path": "pages/center/index",
+			"style": 
+			{
+				"navigationStyle": "custom" ,// 隐藏系统导航栏
+				"navigationBarTextStyle": "black" // 状态栏字体为白色，只能为 white-白色，black-黑色 二选一
+			}
+		}
+        ,{
+            "path" : "pages/news-detail/news-detail",
+            "style" :                                                                                    
+            {
+                "navigationStyle": "custom" ,// 隐藏系统导航栏
+                "navigationBarTextStyle": "black" // 状态栏字体为白色，只能为 white-白色，black-黑色 二选一
+            }
+            
+        }
+        ,{
+            "path" : "pages/news-club/news-club",
+            "style" :                                                                                    
+            {
+                "navigationStyle": "custom" ,// 隐藏系统导航栏
+                "navigationBarTextStyle": "black" // 状态栏字体为白色，只能为 white-白色，black-黑色 二选一
+            }
+            
+        }
+    ],
+	"globalStyle": {
+		"navigationBarTextStyle": "white",
+		"navigationBarTitleText": "雨哥头条",
+		"navigationBarBackgroundColor": "#d81e06",
+		"backgroundColor": "#2c2c2c"
+	},
+	"tabBar": {
+	    "color": "#2c2c2c",
+	    "selectedColor": "#d81e06",
+	    "borderStyle": "black",
+	    "backgroundColor": "#ffffff",
+	    "list": [{
+	        "pagePath": "pages/news-titles/news-titles",
+	        "iconPath": "static/icon/shouye.png",
+	        "selectedIconPath": "static/icon/shouye_sel.png",
+	        "text": "首页"
+	    },{
+	        "pagePath": "pages/news-club/news-club",
+	        "iconPath": "static/icon/shequ.png",
+	        "selectedIconPath": "static/icon/shequ_sel.png",
+	        "text": "社区"
+	    },{
+	        "pagePath": "pages/center/index",
+	        "iconPath": "static/icon/wode.png",
+	        "selectedIconPath": "static/icon/wode_sel.png",
+	        "text": "我的"
+	    }]
+	}
+}
