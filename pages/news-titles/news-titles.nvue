@@ -1,0 +1,107 @@
+<template>
+	<view>
+		<z-paging-swiper>
+			<u-tabs
+				:list="list4"
+				lineWidth="30"
+				lineColor="#f56c6c"
+				:activeStyle="{
+							color: '#303133',
+							fontWeight: 'bold',
+							transform: 'scale(1.05)'
+						}"
+				:inactiveStyle="{
+							color: '#606266',
+							transform: 'scale(1)'
+						}"
+				itemStyle="padding-left: 15px; padding-right: 15px; height: 34px;"
+				@change="tabsChange"
+				:current="current"
+			    >
+			</u-tabs>
+			
+			<swiper class="swiper" :current="current" @transition="transition" @animationfinish="animationfinish" @change="onswiperchange">
+				<swiper-item class="swiper-item" v-for="(item, index) in tabList" :key="index">
+					<swiper-item-n :tabIndex="index" :currentIndex="current"></swiper-item-n>
+				</swiper-item>
+			</swiper>
+		</z-paging-swiper>
+	</view>
+	
+</template>
+
+<script>
+	export default {
+		data() {
+			return {
+				list4: [{
+					name: '关注'
+				}, {
+					name: '推荐',
+					badge: {
+						isDot: false
+					}
+				},  {
+					name: '热点'
+				}, {
+					name: '数码'
+				}, {
+					name: '科技'
+				}, {
+					name: '军事'
+				}, {
+					name: '财经'
+				}, {
+					name: '体育'
+				},{
+					name: '国际'
+				}, {
+					name: '娱乐'
+				},{
+					name: '美食'
+				}],
+				tabList: [
+				'关注',
+				'推荐',
+				'热点',
+				'数码',
+				'科技',
+				'军事',
+				'财经',
+				'体育',
+				'国际',
+				'娱乐',
+				'美食',
+				],
+				// 因为内部的滑动机制限制，请将tabs组件和swiper组件的current用不同变量赋值
+				current: 1, // tabs组件的current值，表示当前活动的tab选项
+			};
+		},
+		methods: {
+			// tabs通知swiper切换
+			tabsChange(e) {
+				this.current = e.index;
+			},
+			// swiper-item左右移动，通知tabs的滑块跟随移动
+			transition(e) {
+				let dx = e.detail.dx;
+			},
+			onswiperchange(e) {
+				// #ifndef APP-PLUS || H5 || MP-WEIXIN || MP-QQ
+				let index = e.target.current || e.detail.current;
+				this.tabsChange(index);
+				// #endif
+			},
+			animationfinish(e) {
+				let current = e.detail.current;
+				this.current = current;
+			}
+		}
+	}
+</script>
+
+<style scoped>
+	.swiper {
+		flex: 1;
+	}
+</style>

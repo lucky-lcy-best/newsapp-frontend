@@ -1,0 +1,222 @@
+<!-- 在这个文件对每个tab对应的列表进行渲染 -->
+<template>
+	<!-- 这里设置了z-paging加载时禁止自动调用reload方法，自行控制何时reload（懒加载）-->
+	<!--  :enable-back-to-top="currentIndex===tabIndex" 在nvue上可以多加这一句，因为默认是允许点击返回顶部的，但是这个页面有多个scroll-view，会全部返回顶部，所以需要控制是当前index才允许点击返回顶部 -->
+	<z-paging ref="paging" v-model="dataList" @query="queryList" :fixed="false" :auto="false">
+		<!-- 在nvue中，z-paging中插入的列表item必须是cell，必须使用cell包住，因为在nvue中，z-paging使用的是nvue的list组件。 -->
+		<!-- 不能使用index作为key的唯一标识，:key必须添加并且必须是唯一的 -->
+		<cell class = "item "v-for="(item,index) in dataList" :key="item.id" @click="goDetail(item)" >
+			<view v-if="item.posterUrl==undefined || item.posterUrl == ''" class="item">
+				<!-- <image class="item-poster" :src="item.posterUrl" ></image> -->
+				<view class="item-detail-noimg">
+					<text class="item-title-noimg">{{item.title}}</text>
+					<text class="item-other-noimg">{{item.author}}   {{item.commentCount}}评论   {{item.publishTime}}</text>
+				</view>
+				<view class="item-line"></view>
+			</view>
+			<view v-else class="item">
+				<image class="item-poster" :src="item.posterUrl" mode="aspectFill"></image>
+				<view class="item-detail">
+					<text class="item-title">{{item.title}}</text>
+					<text class="item-other">{{item.author}}   {{item.commentCount}}评论   {{item.diggCount}}点赞</text>
+					<text class="item-cTime">{{item.publishTime}}发布</text>
+				</view>
+				<view class="item-line"></view>
+			</view>
+		
+		</cell>
+	</z-paging>
+</template>
+
+<script>
+	import request from '@/http/request.js'
+	export default {
+		data() {
+			return {
+				//v-model绑定的这个变量不要在分页请求结束中自己赋值！！！
+				dataList: [],
+				allList: [] ,
+				firstLoaded: false,
+				refresh_count:1
+			}
+		},
+		props: {
+			//当前组件的index，也就是当前组件是swiper中的第几个
+			tabIndex: {
+				type: Number,
+				default: function(){
+					return 0
+				}
+			},
+			//当前swiper切换到第几个index
+			currentIndex: {
+				type: Number,
+				default: function(){
+					return 0
+				}
+			}
+		},
+		watch: {
+			currentIndex: {
+				handler(newVal) {
+					if (newVal === this.tabIndex) {
+						//懒加载，当滑动到当前的item时，才去加载
+						if (!this.firstLoaded) {
+							this.$nextTick(() => {
+								this.$refs.paging.reload();
+							})
+						}
+					}
+				},
+				immediate: true
+			},
+		},
+		methods: {
+			queryList(pageNo, pageSize, from) {
+				if (from == 0) {
+					// 记录每次的刷新次数
+					this.refresh_count++ ;
+					uni.$u.http.get('/getRecNews/' + String(this.tabIndex) + '/' + (this.refresh_count) +'/'+ String(pageSize)).then(res => {
+						// console.log(res);
+						this.allList.push(res) ;
+						this.$refs.paging.complete(res);
+					}).catch(err => {
+						this.$refs.paging.complete(false);
+					})
+				}
+				else if (from == 1) {
+					uni.$u.http.get('/getRecNews/' + String(this.tabIndex) + '/' + (this.refresh_count) +'/'+ String(pageSize)).then(res => {
+						// console.log(res);
+						this.allList.push(res) ;
+						this.$refs.paging.complete(res);
+					}).catch(err => {
+						this.$refs.paging.complete(false);
+					})
+				}
+				else if (from == 3){
+					//每次往下翻到下一页时，都展示上一次请求的数据
+					if (this.refresh_count == 1 || pageNo - 1 >= this.allList.length) {
+						this.$refs.paging.complete([]);
+					}else {
+						this.$refs.paging.complete(this.allList[pageNo - 2]);
+					}
+				}
+			},
+			goDetail(item) {
+				// 带参数
+				uni.$u.route('/pages/news-detail/news-detail', {
+					title: item.title,
+					cTime: item.publishTime,
+					creator_uid: item.creatorUid,
+					content: encodeURIComponent(item.content) ,
+					digg_count: item.diggCount,
+					comment_count: item.commentCount,
+					follower_count: item.follower_count,
+					author: item.author,
+					avator_url: item.avatorUrl,
+					src_url: item.srcUrl
+				});
+			}
+		}
+	}
+</script>
+
+<style lang="scss" scoped>
+	.content {
+		flex: 1;
+		height: 100%;
+	}
+
+	.item {
+		display: flex;
+		flex-direction: row;
+		position: relative;
+		height: 275rpx;
+		align-items: center;
+		justify-content: space-between;
+		padding: 0rpx 15rpx;
+	}
+	
+	.item-title {
+		color: #000000;
+		font-size: 35rpx;
+		width:500rpx;/* 盒子宽自己设置想要的宽度 */
+		/* #ifndef APP-NVUE */
+		height: auto;/*高度自动*/
+		display:inline-block;/*转为行内块元素*/
+		white-space: pre-wrap;/*处理元素内的空白,保留空白符序列，但是正常地进行换行*/
+		word-wrap: break-word;/*允许长单词或 URL 地址换行到下一行,在长单词或 URL 地址内部进行换行*/
+		display: -webkit-box;
+		-webkit-line-clamp: 2;
+		-webkit-box-orient: vertical;
+		/* #endif */
+		text-align: left;
+		padding:0rpx 20rpx;
+		overflow: hidden;
+		lines: 3;
+		text-overflow:ellipsis;
+	}
+	.item-title-noimg {
+		color: #000000;
+		font-size: 35rpx;
+		width:700rpx;/* 盒子宽自己设置想要的宽度 */
+		/* #ifndef APP-NVUE */
+		height: auto;/*高度自动*/
+		display:inline-block;/*转为行内块元素*/
+		white-space: pre-wrap;/*处理元素内的空白,保留空白符序列，但是正常地进行换行*/
+		word-wrap: break-word;/*允许长单词或 URL 地址换行到下一行,在长单词或 URL 地址内部进行换行*/
+		display: -webkit-box;
+		-webkit-line-clamp: 2;
+		-webkit-box-orient: vertical;
+		/* #endif */
+		lines: 3;
+		text-align: left;
+		overflow: hidden;
+		text-overflow:ellipsis;
+		
+	}
+	.item-poster {
+		width: 230rpx;
+		height: 200rpx;
+		border-radius: 10rpx ;
+	
+	}
+	.item-other {
+		/* font-size: 10rpx; */
+		padding-top: 55rpx;
+		padding-left: 20rpx;
+		font-size: 25rpx;
+		color: #5b5b5b;
+	}
+	.item-cTime {
+		font-size: 25rpx;
+		color: #5b5b5b;
+		padding-left: 20rpx;
+	}
+	.item-other-noimg {
+		/* font-size: 10rpx; */
+		padding-top: 55rpx;
+		font-size: 25rpx;
+		color: #5b5b5b;
+	}
+	.item-detail {
+		font-size: 28rpx;
+		color: white;
+		/* background-color: #007AFF; */
+	}
+	.item-detail-noimg {
+		font-size: 28rpx;
+		color: white;
+		/* background-color: #007AFF; */
+	}
+	.item-line {
+		position: absolute;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		height: 1px;
+		background-color: #eeeeee;
+	}
+	
+	
+</style>

@@ -1,9 +1,10 @@
 const http = uni.$u.http
 
-// post请求，获取菜单
-export const postMenu = (params, config = {}) => http.post('/ebapi/public_api/index', params, config)
+// post请求，用户登录
+export const login = (params, config = {}) => http.post('/user/login', params, config)
 
-// get请求，获取菜单，注意：get请求的配置等，都在第二个参数中，详见前面解释
-export const getMenu = (data) => http.get('/ebapi/public_api/index', data)
+// get请求，根据header中的token信息获得用户信息
+export const getUserInfo = (data) => http.get('/user/getUserInfo', data)
 
-//以此类推
+// 注册接口 post
+export const register = (params, config = {}) => http.post('/user/register', params, config)
