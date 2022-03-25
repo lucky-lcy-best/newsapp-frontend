@@ -96,6 +96,17 @@
             }
             
         }
+        ,{
+            "path" : "pages/center/updateInfo",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "编辑资料",
+                "enablePullDownRefresh": false,
+                "navigationStyle": "default" ,
+                "navigationBarTextStyle": "black"
+            }
+            
+        }
     ],
 	"globalStyle": {
 		"navigationBarTextStyle": "white",

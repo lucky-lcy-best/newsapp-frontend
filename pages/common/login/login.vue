@@ -76,7 +76,7 @@ export default {
 				this.$u.vuex('currentToken' , res.token) ;
 				this.$u.toast('登录成功')
 			}).catch(() =>{
-				
+				this.$u.toast('服务器异常')
 			})
 			
 			//登录之后 获取用户信息
@@ -84,7 +84,7 @@ export default {
 				//保存用户信息
 				this.$u.vuex('currentUser' , res) ;
 			}).catch(() =>{
-				
+				this.$u.toast('服务器异常')
 			})
 			
 			//登录之后 跳转 到来源页
