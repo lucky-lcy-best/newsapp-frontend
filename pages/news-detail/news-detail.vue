@@ -23,8 +23,54 @@
 				<text @tap="copyText(srcUrl)">点此可查看原文链接。</text>
 				如有侵权，请联系我们，我们将在最短的时间内处理。
 			</view>
-		</view>
+			
 		
+		</view>
+		<!-- 底部评论栏 -->
+		<view class="navigation">
+			<view class="left">
+				<!-- 写评论 -->
+				<view class="comment_input">
+					<u--input
+					    placeholder="写评论"
+					    border="surround"
+						shape="circle"
+						prefixIcon="edit-pen"></u--input>
+				</view>
+				<!-- 评论数 点击可展开评论-->
+				<view class="counts">
+					<u-badge type="error" max="99" value="20" absolute="true" offset="[10 ,10]"></u-badge>
+					<u-icon name="chat" size="35" color="#989898"></u-icon>
+				</view>
+				<!-- 点赞 -->
+				<view class="counts">
+					<u-icon name="thumb-up" size="35" color="#989898"></u-icon>
+				</view>
+				
+				<!-- 收藏 -->
+				<view class="counts">
+					<u-icon name="star" size="35" color="#989898"></u-icon>
+				</view>
+				
+				<!-- 分享 -->
+				<view class="share">
+					<u-icon name="share" size="35" color="#989898"></u-icon>
+				</view>
+				<!-- <view class="item">
+					<u-icon v-if="!collectNum" name="heart" :size="40" :color="$u.color['contentColor']"></u-icon>
+					<u-icon v-else name="heart-fill" :size="40" color="#2979ff"></u-icon>
+					<view class="text u-line-1">{{collectNum?"已收藏":"收藏"}}</view>
+				</view>
+				<view class="item" @tap="toCart">
+					<u-badge :count="cartNum" bgColor="#2979ff" :is-center="true"></u-badge>
+					<u-icon name="shopping-cart" :size="40" :color="$u.color['contentColor']"></u-icon>
+					<view class="text u-line-1">购物车</view>
+				</view> -->
+			</view>
+			<!-- <view class="right">
+				<u-button :disabled="goods.stock?false:true" class="cart btn" @click="addCart" :ripple="true" type="primary">加入购物车</u-button>
+			</view> -->
+		</view>
 	</view>
 </template>
 
@@ -40,7 +86,17 @@
 				diggCount:0,
 				followerCount:0,
 				avatorUrl:'',
-				srcUrl: ''
+				srcUrl: '',
+				
+				// 不需要的
+				// 商品基本信息
+				goods: {},
+				// 推荐商品
+				likeGoods: {},
+				commentList: {},
+				goodsId: null,
+				collectNum:0,
+				cartNum:0
 			}
 		},
 		onLoad: function (option) { //option为object类型，会序列化上个页面传递的参数
@@ -68,7 +124,11 @@
 						this.$alert('原文链接已复制', 'success');
 					}
 				});
-			}
+			},
+			
+			collect(){
+				this.$u.throttle(this.collectNot,1500)
+			},
 		}
 	}
 </script>
@@ -129,6 +189,72 @@
 		margin: 50rpx 0;
 		font-size: 34rpx;
 		color: #999;
+	}
+	
+	.navigation {
+		position: fixed;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		display: flex;
+		border: solid 2rpx #f2f2f2;
+		background-color: #ffffff;
+		padding: 16rpx 10rpx;
+		justify-content: space-between;
+		.left {
+			display: flex;
+			font-size: 20rpx;
+			justify-content: space-around;
+			.comment_input {
+				width: 300rpx;
+			}
+			.counts {
+				width: 100rpx;
+				padding: 10rpx 10rpx;
+				position: relative;
+				
+			}
+			.share {
+				width: 100rpx;
+				padding: 10rpx 0rpx;
+				position: relative;
+			}
+			
+		}
+		// .left {
+		// 	flex:3;
+		// 	display: flex;
+		// 	font-size: 20rpx;
+		// 	justify-content: space-around;
+		// 	.item {
+		// 		position: relative;
+		// 		text-align: center;
+		// 	}
+		// }
+
+		// .right {
+		// 	flex:9;
+		// 	display: flex;
+		// 	font-size: 28rpx;
+		// 	justify-content: flex-end;
+		// 	align-items: center;
+		// 	.btn {
+		// 		text-align: center;
+		// 		line-height: 66rpx;
+		// 		width: 90%;
+		// 		border-radius: 10rpx;
+		// 		color: #ffffff;
+		// 	}
+
+		// 	.cart {
+		// 		background-color: #2979ff;
+		// 		margin-right: 30rpx;
+		// 	}
+
+		// 	.buy {
+		// 		background-color: #ff7900;
+		// 	}
+		// }
 	}
 	
 </style>

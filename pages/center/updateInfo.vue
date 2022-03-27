@@ -1,21 +1,20 @@
 <template>
 	<view class="update">
 		<view class="uploadAvator">
-			<view class="updateav">
-				<u-upload
-						:fileList="fileList1"
-						@afterRead="afterRead"
-						@delete="deletePic"
-						name="1"
-						multiple
-						:maxCount="1"
-						:previewFullImage="true"
-						width="200rpx"
-						height="200rpx"
-				>
-				<u-avatar :src="currentUser.user.avator" size="100" shape="square"></u-avatar>
-				</u-upload>
-			</view>
+			<!-- <view class="updateav">
+				<u-avatar v-if="isUpload==false" :src="currentUser.user.avator" size="100"></u-avatar>
+				<u-avatar v-else :src="this.user.info.avator" size="100"></u-avatar>
+				<u-button class="updateav" @click="chooseAvatar">点此换头像</u-button>
+			</view> -->
+			<!-- <view class="updateav">
+				<u-button class="updateav" @click="chooseAvatar">
+					<u-avatar v-if="isUpload==false" :src="currentUser.user.avator" size="100"></u-avatar>
+					<u-avatar v-else :src="this.user.info.avator" size="100"></u-avatar>
+				</u-button>
+			</view> -->
+			<u-avatar v-if="isUpload==false" :src="currentUser.user.avator" size="100" @click="chooseAvatar"></u-avatar>
+			<u-avatar v-else :src="this.user.info.avator" size="100" @click="chooseAvatar"></u-avatar>
+			
 		</view>
 		<!-- <image src="https://newsapp-lucky.oss-cn-hangzhou.aliyuncs.com/avator/2022/03/5e53b43cd1004ad8ab98b42af641dd301648042688(1).png"></image> -->
 		<u--form labelPosition="left" :model="user" :rules="rules" ref="form1">
@@ -62,6 +61,8 @@ import { updateUserInfo , getUserInfo} from '@/config/api.js';
 export default {
 	data() {
 		return {
+			isUpload: false,
+			uploadCount:0,
 			fileList1: [] ,
 			showSex: false,
 			showDate: false,
@@ -163,51 +164,53 @@ export default {
 		cancelDate(e) {
 			this.showDate = false
 		},
-		// 删除图片
-		deletePic(event) {
-			this[`fileList${event.name}`].splice(event.index, 1)
-		},
-		// 新增图片
-		async afterRead(event) {
-			// 当设置 mutiple 为 true 时, file 为数组格式，否则为对象格式
-			let lists = [].concat(event.file)
-			let fileListLen = this[`fileList${event.name}`].length
-			lists.map((item) => {
-				this[`fileList${event.name}`].push({
-					...item,
-					status: 'uploading',
-					message: '上传中'
-				})
-			})
-			for (let i = 0; i < lists.length; i++) {
-				const result = await this.uploadFilePromise(lists[i].url)
-				let item = this[`fileList${event.name}`][fileListLen]
-				this[`fileList${event.name}`].splice(fileListLen, 1, Object.assign(item, {
-					status: 'success',
-					message: '',
-					url: result
-				}))
-				fileListLen++
-			}
-		},
-		uploadFilePromise(url) {
-			// console.log(url)
-			return new Promise((resolve, reject) => {
-				let a = uni.uploadFile({
-					url: 'http://172.19.115.65:8081/upload', // 仅为示例，非真实的接口地址
-					filePath: url,
-					name: 'file',
-					success: (res) => {
-						setTimeout(() => {
-							// console.log(res.data)
-							this.user.info.avator = res.data
-							console.log(this.user.info.avator)
-							resolve(res.data.data)
-						}, 1000)
-					}
-				});
-			})
-		},
+		
+		// // 删除图片
+		// deletePic(event) {
+		// 	this[`fileList${event.name}`].splice(event.index, 1)
+		// },
+		// // 新增图片
+		// async afterRead(event) {
+		// 	// 当设置 mutiple 为 true 时, file 为数组格式，否则为对象格式
+		// 	let lists = [].concat(event.file)
+		// 	let fileListLen = this[`fileList${event.name}`].length
+		// 	lists.map((item) => {
+		// 		this[`fileList${event.name}`].push({
+		// 			...item,
+		// 			status: 'uploading',
+		// 			message: '上传中'
+		// 		})
+		// 	})
+		// 	for (let i = 0; i < lists.length; i++) {
+		// 		const result = await this.uploadFilePromise(lists[i].url)
+		// 		let item = this[`fileList${event.name}`][fileListLen]
+		// 		this[`fileList${event.name}`].splice(fileListLen, 1, Object.assign(item, {
+		// 			status: 'success',
+		// 			message: '',
+		// 			url: result
+		// 		}))
+		// 		fileListLen++
+		// 	}
+		// },
+		// uploadFilePromise(url) {
+		// 	// console.log(url)
+		// 	return new Promise((resolve, reject) => {
+		// 		let a = uni.uploadFile({
+		// 			// url: 'http://172.19.115.65:8081/upload', 
+		// 			url: 'http://localhost:8081/upload', 
+		// 			filePath: url,
+		// 			name: 'file',
+		// 			success: (res) => {
+		// 				setTimeout(() => {
+		// 					// console.log(res.data)
+		// 					this.user.info.avator = res.data
+		// 					console.log(this.user.info.avator)
+		// 					resolve(res.data.data)
+		// 				}, 1000)
+		// 			}
+		// 		});
+		// 	})
+		// },
 		async submit() {
 			//将性别用数字替换
 			var currntSex ;
@@ -222,13 +225,13 @@ export default {
 				birthday: this.user.info.birth,
 				avator: this.user.info.avator
 			}
-			console.log("123")
+			// console.log("123")
 			//执行修改请求
 			await updateUserInfo(params, { custom: { auth: true }}).then((res) => {
 				// console.log(res)
 				this.$u.toast('提交成功')
 			}).catch(() =>{
-				console.log(res)
+				// console.log(res)
 			})
 			
 			//修改成功后， 也需要刷新token  然后获取新的用户信息
@@ -241,12 +244,46 @@ export default {
 			await getUserInfo({ custom: { auth: true }}).then((res) => {
 				//保存用户信息
 				this.$u.vuex('currentUser' , res) ;
-				console.log(res)
+				// console.log(res)
 			}).catch(() =>{
 				this.$u.toast('服务器异常')
 			})
 			
-		}
+		},
+		//裁剪图片上传
+		async chooseAvatar() {
+			// 此为uView的跳转方法，详见"文档-JS"部分，也可以用uni的uni.navigateTo
+			await this.$u.route({
+				// 关于此路径，请见下方"注意事项"
+				url: '/uview-ui/components/u-avatar-cropper/u-avatar-cropper',
+				// 内部已设置以下默认参数值，可不传这些参数
+				params: {
+					// 输出图片宽度，高等于宽，单位px
+					destWidth: 300,
+					// 裁剪框宽度，高等于宽，单位px
+					rectWidth: 200,
+					// 输出的图片类型，如果'png'类型发现裁剪的图片太大，改成"jpg"即可
+					fileType: 'jpg',
+				}
+			})
+			
+			// 监听从裁剪页发布的事件，获得裁剪结果
+			await uni.$once('uAvatarCropper', path => {
+				// 可以在此上传到服务端
+				// console.log(path) 注意path是base64编码
+				uni.uploadFile({
+					url: 'http://localhost:8081/upload',
+					filePath: path,
+					name: 'file',
+					success: (res) => {
+						this.isUpload = true ;
+						this.uploadCount++;
+						this.user.info.avator = res.data
+					}
+				});
+			})
+		},
+
 	},
 	filters: {
 	   formatDate: function (value) {
@@ -273,6 +310,11 @@ export default {
     align-items: center;
 	padding: 60rpx 0;
 	
+}
+.updateav {
+	width: 200rpx;
+	border-radius: 50%;
+	padding: 20rpx;
 }
 .submitButton {
 	/* width: 200rpx; */

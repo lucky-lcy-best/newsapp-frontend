@@ -3,7 +3,7 @@ module.exports = (vm) => {
     // 初始化请求配置
     uni.$u.http.setConfig((config) => {
         /* config 为默认全局配置*/
-        config.baseURL = 'http://172.19.115.65:8081'; /* 根域名 */
+        config.baseURL = 'http://localhost:8081'; /* 根域名 */
 		config.header= {};
 		// config.method= 'GET';
 		config.dataType= 'json';
