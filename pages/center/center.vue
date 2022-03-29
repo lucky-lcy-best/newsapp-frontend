@@ -3,10 +3,15 @@
 		<view class="userInfo">
 			<view class="info">
 				<view class="u-m-r-20">
-					<u-avatar :src="currentUser.user.avator" size="90" @click="uploadPic()"></u-avatar>
+					<u-avatar v-if="currentToken == undefined || currentToken == null || currentToken == ''" src="/static/icon/logout_pic.png" size="90" @click="authLogin()"></u-avatar>
+					<u-avatar v-else :src="currentUser.user.avator" size="90" @click="uploadPic()"></u-avatar>
 				</view>
 				<view class="info">
-					<view class="nickname">
+					<view v-if="currentToken == undefined || currentToken == null || currentToken == ''" class="nickname">
+						<view class="nick" @click="authLogin()">请登录</view>
+						<!-- <view class="account">账号:{{currentUser.user.account}}</view> -->
+					</view>
+					<view v-else class="nickname">
 						<view class="nick">{{currentUser.user.nickname}}</view>
 						<view class="account">账号:{{currentUser.user.account}}</view>
 					</view>
@@ -32,7 +37,7 @@
 				<u-cell class="cell" icon="setting" title="关于我们" size="large"></u-cell>
 				<u-cell class="cell" icon="setting" title="用户反馈" size="large"></u-cell>
 				<u-cell class="cell" icon="setting" title="设置" size="large"></u-cell>
-				<u-cell class="cell" icon="setting" title="退出登录" size="large"></u-cell>
+				<u-cell class="cell" icon="man-delete" title="退出登录" size="large" @click="authLogout()"></u-cell>
 			</u-cell-group>
 		</view>
 		<!-- <view class="u-m-t-20">
@@ -44,21 +49,54 @@
 </template>
 
 <script>
+	import { logout } from '@/config/api.js';
 	export default {
 		data() {
 			return {
 				pic:'https://uviewui.com/common/logo.png',
-				show:true
+				show:true,
 			}
 		},
 		onLoad() {
-			this.$u.utils.isLogin();
+			// if (this.currentUser.user == undefined) 
+			// this.$u.utils.isLogin()
 		},
 		methods: {
+			//前往个人主页
 			goUserInfo() {
-				this.$u.route({
-					url : 'pages/center/updateInfo'
+				if (this.currentToken) {
+					this.$u.route({
+						url : 'pages/center/updateInfo'
+					})
+				}else {
+					this.authLogin();
+				}
+				
+			},
+			//退出登录
+			authLogout() {
+				//登录之后 获取用户信息
+				logout({ custom: { auth: true }}).then((res) => {
+					//退出登录清除token，用户信息置为空
+					// this.$u.vuex('currentUser' , null) ;
+					this.$u.vuex('currentToken' , null) ;
+				}).catch(() =>{
+					this.$u.toast('服务器异常')
 				})
+			},
+			authLogin() {
+				//来自哪个页面
+				const currentPage = getCurrentPages().pop() ;
+				//缓存当前页 用于登录或者注册之后的跳转
+				uni.setStorageSync('back_url' , currentPage.route) ;
+				// vm.$u.toast('您尚未登录，请先登录')
+				setTimeout(() => {
+					this.$u.route({
+						// type: 'redirect',
+						animationType: 'slide-in-right',
+						url: 'pages/common/login/login'
+					})
+				},500)
 			}
 		}
 	}

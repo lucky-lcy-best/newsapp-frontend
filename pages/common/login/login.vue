@@ -91,11 +91,10 @@ export default {
 			const backUrl = uni.getStorageSync('back_url') || 'pages/news-titles/news-titles'
 			setTimeout(() => {
 				this.$u.route({
-					type: 'reLaunch' ,
+					type: 'redirect' ,
 					url : backUrl
 				})
 			}, 1500)
-			
 			
 		},
 		goRegister() {

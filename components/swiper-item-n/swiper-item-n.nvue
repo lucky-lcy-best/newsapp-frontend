@@ -6,11 +6,11 @@
 		<!-- 在nvue中，z-paging中插入的列表item必须是cell，必须使用cell包住，因为在nvue中，z-paging使用的是nvue的list组件。 -->
 		<!-- 不能使用index作为key的唯一标识，:key必须添加并且必须是唯一的 -->
 		<cell class = "item "v-for="(item,index) in dataList" :key="item.id" @click="goDetail(item)" >
-			<view v-if="item.posterUrl==undefined || item.posterUrl == ''" class="item">
+			<view v-if="item.posterUrl==undefined || item.posterUrl == ''" class="item" >
 				<!-- <image class="item-poster" :src="item.posterUrl" ></image> -->
 				<view class="item-detail-noimg">
 					<text class="item-title-noimg">{{item.title}}</text>
-					<text class="item-other-noimg">{{item.author}}   {{item.commentCount}}评论   {{item.publishTime}}</text>
+					<text class="item-other-noimg">{{item.author}}  {{item.commentCount}}评论 {{item.diggCount}}点赞  {{item.publishTime}}</text>
 				</view>
 				<view class="item-line"></view>
 			</view>
@@ -18,6 +18,7 @@
 				<image class="item-poster" :src="item.posterUrl" mode="aspectFill"></image>
 				<view class="item-detail">
 					<text class="item-title">{{item.title}}</text>
+					<!-- <text v-if="newsId===item.id" class="item-other">{{item.author}}   {{item.commentCount}}评论   {{this.diggCount}}点赞</text> -->
 					<text class="item-other">{{item.author}}   {{item.commentCount}}评论   {{item.diggCount}}点赞</text>
 					<text class="item-cTime">{{item.publishTime}}发布</text>
 				</view>
@@ -29,7 +30,8 @@
 </template>
 
 <script>
-	import request from '@/http/request.js'
+	import {mapState, mapMutations} from 'vuex';
+	import request from '@/http/request.js';
 	export default {
 		data() {
 			return {
@@ -37,9 +39,19 @@
 				dataList: [],
 				allList: [] ,
 				firstLoaded: false,
-				refresh_count:1
+				refresh_count:1,
+				pageNum: 0,
+				pageSizes : 0,
+				pageFrom: -1
 			}
 		},
+		// computed: {
+		// 	newsList: {
+		// 		get() {
+		// 			return this.$store.state
+		// 		}
+		// 	}
+		// },
 		props: {
 			//当前组件的index，也就是当前组件是swiper中的第几个
 			tabIndex: {
@@ -54,7 +66,7 @@
 				default: function(){
 					return 0
 				}
-			}
+			},
 		},
 		watch: {
 			currentIndex: {
@@ -71,22 +83,43 @@
 				immediate: true
 			},
 		},
+		// activated() {
+		// 	//每次点赞或者评论之后返回列表页对数据进行更新
+		// 	const newsinfo = uni.getStorageSync('currentNews');
+		// 	// console.log(newsinfo.newsId)
+		// 	//访问后端接口 根据id查询一条新闻的点赞数
+		// 	uni.$u.http.get('/news/' + String(newsinfo.newsId),{ custom: { auth: true }}).then(res => {
+		// 		// if (newsinfo.isdigg) {
+		// 		for (var i = 0 ; i < this.dataList.length ; i++) {
+		// 			if (this.dataList[i].id == newsinfo.newsId) {
+		// 				this.dataList[i].diggCount = res.diggCount;
+		// 				this.dataList[i].followerCount = res.followerCount;
+		// 				this.dataList[i].commentCount = res.commentCount;
+		// 				// uni.setStorageSync('diggNewsId',-1)
+		// 				break;
+		// 			}
+		// 		}
+		// 	}).catch(err => {
+		// 		this.$u.toast('服务器异常')
+		// 	})
+			
+		// },
 		methods: {
-			queryList(pageNo, pageSize, from) {
+			async queryList(pageNo, pageSize, from) {
 				if (from == 0) {
 					// 记录每次的刷新次数
 					this.refresh_count++ ;
-					uni.$u.http.get('/getRecNews/' + String(this.tabIndex) + '/' + (this.refresh_count) +'/'+ String(pageSize)).then(res => {
+					await uni.$u.http.get('/getRecNews/' + String(this.tabIndex) + '/' + (this.refresh_count) +'/'+ String(pageSize)).then(res => {
 						// console.log(res);
 						this.allList.push(res) ;
 						this.$refs.paging.complete(res);
+						dataList = res ;
 					}).catch(err => {
 						this.$refs.paging.complete(false);
 					})
 				}
 				else if (from == 1) {
-					uni.$u.http.get('/getRecNews/' + String(this.tabIndex) + '/' + (this.refresh_count) +'/'+ String(pageSize)).then(res => {
-						// console.log(res);
+					await uni.$u.http.get('/getRecNews/' + String(this.tabIndex) + '/' + (this.refresh_count) +'/'+ String(pageSize)).then(res => {
 						this.allList.push(res) ;
 						this.$refs.paging.complete(res);
 					}).catch(err => {
@@ -99,23 +132,25 @@
 						this.$refs.paging.complete([]);
 					}else {
 						this.$refs.paging.complete(this.allList[pageNo - 2]);
+						// var dataList = []
+						// for (var i = this.allList.length - 1 ; i >= 0 ; i--) {
+						// 	for (var j = 0 ; j < this.allList[0].length ; j++) {
+						// 		dataList.push(this.allList[i][j])
+						// 	}
+						// }
+						// this.$u.vuex('newsList' , dataList)
 					}
 				}
 			},
 			goDetail(item) {
 				// 带参数
 				uni.$u.route('/pages/news-detail/news-detail', {
-					title: item.title,
-					cTime: item.publishTime,
-					creator_uid: item.creatorUid,
-					content: encodeURIComponent(item.content) ,
-					digg_count: item.diggCount,
-					comment_count: item.commentCount,
-					follower_count: item.follower_count,
-					author: item.author,
-					avator_url: item.avatorUrl,
-					src_url: item.srcUrl
+					id: item.id 
 				});
+			},
+			//update Counts
+			updateDigg() {
+				
 			}
 		}
 	}

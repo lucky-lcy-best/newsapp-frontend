@@ -3,6 +3,9 @@ const http = uni.$u.http
 // post请求，用户登录
 export const login = (params, config = {}) => http.post('/user/login', params, config)
 
+// get请求，根据token退出登录
+export const logout = (data) => http.get('/user/logout', data)
+
 // get请求，根据header中的token信息获得用户信息
 export const getUserInfo = (data) => http.get('/user/getUserInfo', data)
 
@@ -14,3 +17,7 @@ export const updateUserInfo = (params, config = {}) => http.post('/user/update',
 
 // get请求，无缝刷新token信息
 export const refreshToken = (data) => http.get('/user/refreshToken', data)
+
+
+
+

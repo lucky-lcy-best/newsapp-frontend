@@ -1,55 +1,63 @@
 <template>
 	<view>
 		<u-navbar
-			:title="author"
+			:title="newsinfo.author"
 			@rightClick="rightClick"
 			:autoBack="true"
 			rightIcon="more-dot-fill"
 		>
 		</u-navbar>
 		<view class="u-content">
-			<strong><text class="title">{{title}}</text></strong>
+			<strong><text class="title">{{newsinfo.title}}</text></strong>
 			<view class="authorInfo">
-				<u-avatar :src="avatorUrl" class="avator"></u-avatar>
+				<u-avatar :src="newsinfo.avatorUrl" class="avator"></u-avatar>
 				<view class="detail">
-					<text class="name">{{author}}</text>
-					<text class="cTime"><br>{{cTime}}</text>
+					<text class="name">{{newsinfo.author}}</text>
+					<text class="cTime"><br>{{newsinfo.publishTime}}</text>
 				</view>
 				<u-button class = "focus" type="primary" text="关注" color="red"></u-button>
 			</view>
-			<u-parse :content="content" :selectable="true" :lazyLoad="true" class="newsInfo"></u-parse>
-			<view class="declaration" v-if="srcUrl">
+			<u-parse :content="newsinfo.content" :selectable="true" :lazyLoad="true" class="newsInfo"></u-parse>
+			
+			<view class="declaration" v-if="newsinfo.srcUrl">
 				本文转载至{{ srcUrl }}，
-				<text @tap="copyText(srcUrl)">点此可查看原文链接。</text>
+				<text @tap="copyText(newsinfo.srcUrl)">点此可查看原文链接。</text>
 				如有侵权，请联系我们，我们将在最短的时间内处理。
 			</view>
-			
+			<!-- <view class="counts-info">
+				<text>本文{{newsinfo.commentCount}}条评论，本文{{newsinfo.diggCount}}人点赞</text>
+				<text>{{newsinfo.followerCount}}次收藏</text>
+				<text>{{this.hello}}</text>
+			</view> -->
 		
 		</view>
 		<!-- 底部评论栏 -->
 		<view class="navigation">
 			<view class="left">
 				<!-- 写评论 -->
-				<view class="comment_input">
+				<view class="comment_input" @click="toggle()">
 					<u--input
 					    placeholder="写评论"
 					    border="surround"
 						shape="circle"
-						prefixIcon="edit-pen"></u--input>
+						prefixIcon="edit-pen"
+						></u--input>
 				</view>
 				<!-- 评论数 点击可展开评论-->
 				<view class="counts">
-					<u-badge type="error" max="99" value="20" absolute="true" offset="[10 ,10]"></u-badge>
+					<u-badge type="error" max="99" :value="newsinfo.commentCount" absolute="true" offset="[10 ,10]"></u-badge>
 					<u-icon name="chat" size="35" color="#989898"></u-icon>
 				</view>
 				<!-- 点赞 -->
-				<view class="counts">
-					<u-icon name="thumb-up" size="35" color="#989898"></u-icon>
+				<view class="counts" @click="digg()">
+					<u-icon v-if="isdigg==false" name="thumb-up" size="35" color="#989898"></u-icon>
+					<u-icon v-else name="thumb-up-fill" size="35" color="#989898"></u-icon>
 				</view>
 				
 				<!-- 收藏 -->
-				<view class="counts">
-					<u-icon name="star" size="35" color="#989898"></u-icon>
+				<view class="counts" @click="like()">
+					<u-icon v-if="islike==false" name="star" size="35" color="#989898"></u-icon>
+					<u-icon v-else name="star-fill" size="35" color="#989898"></u-icon>
 				</view>
 				
 				<!-- 分享 -->
@@ -71,6 +79,37 @@
 				<u-button :disabled="goods.stock?false:true" class="cart btn" @click="addCart" :ripple="true" type="primary">加入购物车</u-button>
 			</view> -->
 		</view>
+		<view class="popup">
+			<u-popup :show="popShow" :round="10" mode="bottom" @close="close" @open="open">
+				<view class="popup-all">
+					<view class="popup-content">
+						<u--textarea class="input" v-model="commentContent" placeholder="请输入内容" count maxlength="250">
+						</u--textarea>
+						<view class="buttons">
+							<view class="submitButton">
+								<u-button type="primary" size="small" text="发送" color="#ff4646" throttleTime="1000" shape="circle"></u-button>
+							</view>
+							<view class="submitButton">
+								<u-button type="primary" size="small" text="清空" color="#ff4646" throttleTime="1000" shape="circle"></u-button>
+							</view>
+						</view>
+					</view>
+					<view class="picUpload">
+						<u-upload
+							:fileList="fileList1"
+							@afterRead="afterRead"
+							@delete="deletePic"
+							name="1"
+							multiple
+							:maxCount="10"
+							:previewFullImage="true"
+							width="120rpx"
+							height="120rpx"
+						></u-upload>
+					</view>
+				</view>
+			</u-popup>
+		</view>
 	</view>
 </template>
 
@@ -78,38 +117,53 @@
 	export default {
 		data() {
 			return {
-				title: "",
-				content: ``,
-				author: "",
-				creatorUid:'',
-				cTime :'',
-				diggCount:0,
-				followerCount:0,
-				avatorUrl:'',
-				srcUrl: '',
-				
-				// 不需要的
-				// 商品基本信息
-				goods: {},
-				// 推荐商品
-				likeGoods: {},
-				commentList: {},
-				goodsId: null,
-				collectNum:0,
-				cartNum:0
+				newsinfo: {
+					
+				},
+				isdigg:false,
+				islike:false,
+				showAddComment: false,
+				showCommenBar: true,
+				addCommentFocus: false,
+				commentContent: '',
+				replyCommentId: 0,
+				replyNickname: '',
+				fileList1:[],
+				popShow: false
 			}
 		},
-		onLoad: function (option) { //option为object类型，会序列化上个页面传递的参数
-			this.content = option.content ;
-			this.title = option.title ;
-			this.author = option.author ;
-			this.creatorUid = option.creator_uid ;
-			this.cTime = option.cTime ;
-			this.diggCount = option.digg_count ;
-			this.followerCount = option.follower_count ;
-			this.avatorUrl = option.avator_url ;
-			this.srcUrl = option.src_url ;
-			// console.log(this.avatorUrl)
+		async onLoad(option) { //option为object类型，会序列化上个页面传递的参数	
+			//根据id获取新闻信息
+			await uni.$u.http.get('/news/' + String(option.id)).then(res => {
+				this.newsinfo = res 
+				// console.log(this.newsinfo) ;
+			}).catch(err => {
+				this.$u.toast('服务器异常')
+			})
+			
+			//加载页面时判断该用户是否已经点赞
+			if (this.currentToken) {
+				await uni.$u.http.get('/news/isDigg/' + String(this.currentUser.user.id) + '/' + String(this.newsinfo.id) ,{ custom: { auth: true }}).then(res => {
+					//直接修改isdigg
+					this.isdigg = res ;
+				}).catch(err => {
+					this.$u.toast('服务器异常')
+				})
+				
+				// 加载页面时判断该用户是否已经收藏
+				await uni.$u.http.get('/news/isLike/' + String(this.currentUser.user.id) + '/' + String(this.newsinfo.id) ,{ custom: { auth: true }}).then(res => {
+					this.islike = res ;
+				}).catch(err => {
+					this.$u.toast('服务器异常')
+				})
+			
+			}
+			else {
+				//未登录 默认未点赞和未收藏
+				this.isdigg = false ;
+				this.islike = false ;
+			}
+			
 		},
 		methods: {
 			rightClick() {
@@ -121,13 +175,90 @@
 				uni.setClipboardData({
 					data: text,
 					success: res => {
-						this.$alert('原文链接已复制', 'success');
+						this.$u.toast('原文链接已复制')
 					}
 				});
 			},
 			
 			collect(){
 				this.$u.throttle(this.collectNot,1500)
+			},
+			digg() {
+				this.isdigg = !this.isdigg ;
+				//点赞数+1或者减1
+				uni.$u.http.get('/news/clickDigg/' + String(this.currentUser.user.id) + '/' + String(this.newsinfo.id) + '/' + String(this.isdigg),{ custom: { auth: true }}).then(res => {
+					//页面显示的数字也加1
+					// if (res) this.newsinfo.diggCount++;
+					// else this.newsinfo.diggCount--;
+					// console.log(this.newsinfo.followerCount)
+				}).catch(err => {
+					this.$u.toast('服务器异常')
+				})
+			},
+			like() {
+				this.islike = !this.islike ;
+				//收藏数+1或者-1
+				uni.$u.http.get('/news/clickLike/' + String(this.currentUser.user.id) + '/' + String(this.newsinfo.id) + '/' + String(this.islike) ,{ custom: { auth: true }}).then(res => {
+					// if (res) this.newsinfo.followerCount++;
+					// else this.newsinfo.followerCount--;
+				}).catch(err => {
+					this.$u.toast('服务器异常')
+				})
+			},
+			//弹起输入框
+			toggle() {
+				this.popShow = true ;
+			},
+			close() {
+				this.popShow = false ;
+			},
+			// 删除图片
+			deletePic(event) {
+				this[`fileList${event.name}`].splice(event.index, 1)
+			},
+			// 新增图片
+			async afterRead(event) {
+				// console.log(event)
+				// 当设置 mutiple 为 true 时, file 为数组格式，否则为对象格式
+				let lists = [].concat(event.file)
+				let fileListLen = this[`fileList${event.name}`].length
+				lists.map((item) => {
+					this[`fileList${event.name}`].push({
+						...item,
+						status: 'uploading',
+						message: '上传中'
+					})
+				})
+				for (let i = 0; i < lists.length; i++) {
+					const result = await this.uploadFilePromise(lists[i].url)
+					let item = this[`fileList${event.name}`][fileListLen]
+					this[`fileList${event.name}`].splice(fileListLen, 1, Object.assign(item, {
+						status: 'success',
+						message: '',
+						url: result
+					}))
+					fileListLen++
+				}
+			},
+			uploadFilePromise(url) {
+				// console.log(url)
+				return new Promise((resolve, reject) => {
+					let a = uni.uploadFile({
+						// url: 'http://172.19.115.65:8081/upload', 
+						url: 'http://localhost:8081/upload', 
+						filePath: url,
+						name: 'file',
+						success: (res) => {
+							setTimeout(() => {
+								// console.log(res.data)
+								// this.user.info.avator = res.data
+								// console.log(this.user.info.avator)
+								console.log(res)
+								resolve(res.data.data)
+							}, 1000)
+						}
+					});
+				})
 			},
 		}
 	}
@@ -221,40 +352,37 @@
 			}
 			
 		}
-		// .left {
-		// 	flex:3;
-		// 	display: flex;
-		// 	font-size: 20rpx;
-		// 	justify-content: space-around;
-		// 	.item {
-		// 		position: relative;
-		// 		text-align: center;
-		// 	}
-		// }
-
-		// .right {
-		// 	flex:9;
-		// 	display: flex;
-		// 	font-size: 28rpx;
-		// 	justify-content: flex-end;
-		// 	align-items: center;
-		// 	.btn {
-		// 		text-align: center;
-		// 		line-height: 66rpx;
-		// 		width: 90%;
-		// 		border-radius: 10rpx;
-		// 		color: #ffffff;
-		// 	}
-
-		// 	.cart {
-		// 		background-color: #2979ff;
-		// 		margin-right: 30rpx;
-		// 	}
-
-		// 	.buy {
-		// 		background-color: #ff7900;
-		// 	}
-		// }
+	}
+	.popup-all {
+		display: flex;
+		flex-direction: column;
+		padding: 20rpx;
+		height: 350rpx;
+		background-color: #fff;
+		border-radius: 3%;
+		.popup-content {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			.input {
+				background-color: #f4f4f4;
+			}
+			.buttons {
+				.submitButton {
+					/* width: 200rpx; */
+					padding: 15rpx 10rpx;
+				}
+			}
+		}
+		.picUpload {
+			padding: 20rpx;
+			height: 10rpx;
+		}
+	}
+	
+	
+	.popup-height {
+		width: 200px;
 	}
 	
 </style>

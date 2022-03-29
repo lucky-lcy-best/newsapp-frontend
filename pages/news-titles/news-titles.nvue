@@ -34,6 +34,8 @@
 	export default {
 		data() {
 			return {
+				newsId:-1 ,
+				diggCount: 0,
 				list4: [{
 					name: '关注'
 				}, {
@@ -76,6 +78,9 @@
 				// 因为内部的滑动机制限制，请将tabs组件和swiper组件的current用不同变量赋值
 				current: 1, // tabs组件的current值，表示当前活动的tab选项
 			};
+		},
+		onLoad() {
+			// uni.setStorageSync('dataList',this.dataList)
 		},
 		methods: {
 			// tabs通知swiper切换

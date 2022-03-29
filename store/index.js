@@ -34,6 +34,8 @@ const store = new Vuex.Store({
 		// 加上vuex_前缀，是防止变量名冲突，也让人一目了然
 		currentUser: lifeData.currentUser ? lifeData.currentUser : {name: 'Lucky'},
 		currentToken: lifeData.currentToken ? lifeData.currentToken : '',
+		// diggList: lifeData.diggList ? lifeData.diggList : [] ,
+		// likeList: lifeData.likeList ? lifeData.likeList : [],
 		// 如果vuex_version无需保存到本地永久存储，无需lifeData.vuex_version方式
 		vuex_version: '1.0.1',
 	},
