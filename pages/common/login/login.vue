@@ -88,7 +88,16 @@ export default {
 			})
 			
 			//登录之后 跳转 到来源页
+			//判断是否是个人中心跳转过来
 			const backUrl = uni.getStorageSync('back_url') || 'pages/news-titles/news-titles'
+			if (backUrl == 'pages/center/center') {
+				setTimeout(() => {
+					this.$u.route({
+						type: 'reLaunch' ,
+						url : backUrl
+					})
+				}, 1500)
+			}
 			setTimeout(() => {
 				this.$u.route({
 					type: 'redirect' ,

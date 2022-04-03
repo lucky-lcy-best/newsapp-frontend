@@ -113,6 +113,16 @@
 				"navigationBarTitleText": "头像裁剪",
 				"navigationBarBackgroundColor": "#000000"
 			}
+		},
+		{
+			"path" : "pages/news-detail/reply",
+			"style" :                                                                                    
+			{
+			    "navigationBarTitleText": "全部回复",
+			    "enablePullDownRefresh": false,
+			    "navigationStyle": "default" ,
+			    "navigationBarTextStyle": "black"
+			}
 		}
     ],
 	"globalStyle": {

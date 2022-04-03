@@ -81,6 +81,7 @@
 		},
 		onLoad() {
 			// uni.setStorageSync('dataList',this.dataList)
+			// console.log(this.dataList)
 		},
 		methods: {
 			// tabs通知swiper切换

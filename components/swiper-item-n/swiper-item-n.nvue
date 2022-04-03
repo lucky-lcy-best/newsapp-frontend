@@ -45,13 +45,6 @@
 				pageFrom: -1
 			}
 		},
-		// computed: {
-		// 	newsList: {
-		// 		get() {
-		// 			return this.$store.state
-		// 		}
-		// 	}
-		// },
 		props: {
 			//当前组件的index，也就是当前组件是swiper中的第几个
 			tabIndex: {
@@ -83,27 +76,6 @@
 				immediate: true
 			},
 		},
-		// activated() {
-		// 	//每次点赞或者评论之后返回列表页对数据进行更新
-		// 	const newsinfo = uni.getStorageSync('currentNews');
-		// 	// console.log(newsinfo.newsId)
-		// 	//访问后端接口 根据id查询一条新闻的点赞数
-		// 	uni.$u.http.get('/news/' + String(newsinfo.newsId),{ custom: { auth: true }}).then(res => {
-		// 		// if (newsinfo.isdigg) {
-		// 		for (var i = 0 ; i < this.dataList.length ; i++) {
-		// 			if (this.dataList[i].id == newsinfo.newsId) {
-		// 				this.dataList[i].diggCount = res.diggCount;
-		// 				this.dataList[i].followerCount = res.followerCount;
-		// 				this.dataList[i].commentCount = res.commentCount;
-		// 				// uni.setStorageSync('diggNewsId',-1)
-		// 				break;
-		// 			}
-		// 		}
-		// 	}).catch(err => {
-		// 		this.$u.toast('服务器异常')
-		// 	})
-			
-		// },
 		methods: {
 			async queryList(pageNo, pageSize, from) {
 				if (from == 0) {
@@ -132,13 +104,6 @@
 						this.$refs.paging.complete([]);
 					}else {
 						this.$refs.paging.complete(this.allList[pageNo - 2]);
-						// var dataList = []
-						// for (var i = this.allList.length - 1 ; i >= 0 ; i--) {
-						// 	for (var j = 0 ; j < this.allList[0].length ; j++) {
-						// 		dataList.push(this.allList[i][j])
-						// 	}
-						// }
-						// this.$u.vuex('newsList' , dataList)
 					}
 				}
 			},

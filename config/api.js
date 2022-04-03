@@ -18,6 +18,18 @@ export const updateUserInfo = (params, config = {}) => http.post('/user/update',
 // get请求，无缝刷新token信息
 export const refreshToken = (data) => http.get('/user/refreshToken', data)
 
+// post请求，发表评论
+export const sendComment = (params, config = {}) => http.post('/comment/addComment', params, config)
+
+// post请求，点赞评论
+export const commentDigg = (params, config = {}) => http.post('/comment/clickDigg', params, config)
+
+// post请求，点赞回复
+export const ReplyDigg = (params, config = {}) => http.post('/reply/clickDigg', params, config)
+
+// post请求，发表回复
+export const sendReply = (params, config = {}) => http.post('/reply/addReply', params, config)
+
 
 
 
