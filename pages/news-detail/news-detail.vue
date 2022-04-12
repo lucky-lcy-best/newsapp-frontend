@@ -10,12 +10,13 @@
 		<view class="u-content">
 			<strong><text class="title">{{newsinfo.title}}</text></strong>
 			<view class="authorInfo">
-				<u-avatar :src="newsinfo.avatorUrl" class="avator"></u-avatar>
-				<view class="detail">
+				<u-avatar :src="newsinfo.avatorUrl" class="avator" @click="likeAuth(newsinfo.creatorUid)"></u-avatar>
+				<view class="detail" @click="likeAuth(newsinfo.creatorUid)">
 					<text class="name">{{newsinfo.author}}</text>
 					<text class="cTime"><br>{{newsinfo.publishTime}}</text>
 				</view>
-				<u-button class = "focus" type="primary" text="关注" color="red"></u-button>
+				<u-button v-if="isFollow==false" class = "focus" type="primary" text="关注" color="red" @click="followMediaUser()"></u-button>
+				<u-button v-else class = "focus" type="primary" text="已关注" color="red" :plain="true" @click="cancelFollowMediaUser()"></u-button>
 			</view>
 			<u-parse :content="newsinfo.content" :selectable="true" :lazyLoad="true" class="newsInfo"></u-parse>
 			
@@ -188,7 +189,7 @@
 </template>
 
 <script>
-	import { sendComment , commentDigg, sendReply} from '@/config/api.js';
+	import { sendComment , commentDigg, sendReply, addHistory} from '@/config/api.js';
 	export default {
 		data() {
 			return {
@@ -214,7 +215,8 @@
 				totalPage: 0,
 				currComment:{},
 				currIndex: -1,
-				type: 0 // 评论还是回复
+				type: 0 ,// 评论还是回复
+				isFollow: false
 			}
 		},
 		//评论触底 滚动到底部
@@ -237,6 +239,15 @@
 			await uni.$u.http.get('/news/' + String(option.id)).then(res => {
 				this.newsinfo = res 
 				// console.log(this.newsinfo) ;
+			}).catch(err => {
+				this.$u.toast('服务器异常')
+			})
+			
+			//判断当前用户是否已经关注该作者
+			uni.$u.http.get('/news/isFollow/' + String(this.currentUser.user.id) + '/' + String(this.newsinfo.creatorUid) ,{ custom: { auth: true }}).then(res => {
+				//直接修改isdigg
+				console.log(res)
+				this.isFollow = res ;
 			}).catch(err => {
 				this.$u.toast('服务器异常')
 			})
@@ -268,17 +279,28 @@
 			await this.getComment();
 			
 		},
-		async onShow() {
+		onBackPress() {
+			//返回的时候将这条新闻加入浏览记录
+			const params = {
+				newsId : this.newsinfo.id ,
+				userId : this.currentUser.user.id ,
+			}
+			addHistory(params, {custom: {auth: true}}).then((res) => {
+				
+			}).catch(() =>{
+				this.$u.toast('服务器异常')
+			})
+		},
+		onShow() {
 			//每次刷新用户当前点开的评论 提升用户体验
 			var index = uni.getStorageSync("index");
 			//根据评论id先获取评论信息
-			await uni.$u.http.get("/comment/getById/" + String(this.commentList[index].id) + '/' + String(this.currentUser.user.id), {custom : {auth: true}}).then(res=> {
+			uni.$u.http.get("/comment/getById/" + String(this.commentList[index].id) + '/' + String(this.currentUser.user.id), {custom : {auth: true}}).then(res=> {
 				//刷新该评论 记住无法强制刷新 所以弄个临时评论  然后再修改commentList列表   uni-app的bug
 				this.currComment = res ;
+				console.log(res)
 				this.commentList[index] = res ;
 				uni.removeStorageSync("index")
-				// this.$forceUpdate();
-				// console.log(this.commentList[index])
 			})
 			.catch(err => {
 				this.$u.toast('服务器异常')
@@ -286,6 +308,24 @@
 			
 		},
 		methods: {
+			//关注与取关用户
+			followMediaUser() {
+				this.isFollow = true ;
+				uni.$u.http.get('/news/followMedia/' + String(this.currentUser.user.id) + '/' + String(this.newsinfo.creatorUid) ,{ custom: { auth: true }}).then(res => {
+					//直接修改isdigg
+					this.isFollow = res ;
+				}).catch(err => {
+					this.$u.toast('服务器异常')
+				})
+			},
+			cancelFollowMediaUser() {
+				this.isFollow = false ;
+				uni.$u.http.get('/news/cancelFollowMedia/' + String(this.currentUser.user.id) + '/' + String(this.newsinfo.creatorUid) ,{ custom: { auth: true }}).then(res => {
+					//直接修改isdigg
+				}).catch(err => {
+					this.$u.toast('服务器异常')
+				})
+			},
 			//发表评论
 			async sendComment() {
 				//发表一条评论需要 用户id , 用户头像昵称，直接本地获取，新闻的news_id也是本页面获取
@@ -339,7 +379,7 @@
 					commentId : this.currComment.id ,
 					content : this.replyContent ,
 					fromUid : this.currentUser.user.id ,
-					toUid : this.currComment.id
+					toUid : null
 					// commentPic : this.commentPic
 				}
 				await sendReply(params, {custom: {auth: true}}).then((res) => {
@@ -390,11 +430,11 @@
 				})
 			},
 			// 评论列表
-			async getComment() {
+			getComment() {
 				//通过newsId来获取新闻评论同时获取这些新闻的回复
 				
 				//先获取所有评论
-				await uni.$u.http.get('/comment/getAll/' + String(this.newsinfo.id) + '/' + String(this.commentPage) + '/' + String(this.currentUser.user.id),{ custom: { auth: true }}).then(res => {
+				uni.$u.http.get('/comment/getAll/' + String(this.newsinfo.id) + '/' + String(this.commentPage) + '/' + String(this.currentUser.user.id),{ custom: { auth: true }}).then(res => {
 					this.totalPage = res.pageNum ;
 					if (this.commentPage == 1) this.commentList = res.comments ;
 					else {
@@ -429,10 +469,7 @@
 				this.isdigg = !this.isdigg ;
 				//点赞数+1或者减1
 				uni.$u.http.get('/news/clickDigg/' + String(this.currentUser.user.id) + '/' + String(this.newsinfo.id) + '/' + String(this.isdigg),{ custom: { auth: true }}).then(res => {
-					//页面显示的数字也加1
-					// if (res) this.newsinfo.diggCount++;
-					// else this.newsinfo.diggCount--;
-					// console.log(this.newsinfo.followerCount)
+
 				}).catch(err => {
 					this.$u.toast('服务器异常')
 				})
@@ -510,6 +547,12 @@
 					current:item,
 					urls:urls
 				})
+			},
+			//关注新闻发布者
+			likeAuth(uid) {
+				uni.$u.route('/pages/news-detail/author', {
+					creatorUid: uid ,
+				});
 			}
 		}
 	}
@@ -583,23 +626,24 @@
 		background-color: #ffffff;
 		padding: 16rpx 10rpx;
 		justify-content: space-between;
+		height: 80rpx;
 		.left {
 			display: flex;
 			font-size: 20rpx;
 			justify-content: space-around;
 			.comment_input {
 				width: 300rpx;
-				padding: 5rpx 0 ;
+				padding: 0rpx 0 ;
 			}
 			.counts {
 				width: 100rpx;
-				padding: 10rpx 10rpx;
+				padding: 0rpx 10rpx;
 				position: relative;
 				
 			}
 			.share {
 				width: 100rpx;
-				padding: 10rpx 0rpx;
+				padding: 0rpx 0rpx;
 				position: relative;
 			}
 			

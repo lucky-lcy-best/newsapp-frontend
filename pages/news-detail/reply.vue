@@ -144,7 +144,7 @@ export default {
 		//发表回复
 		async sendReply() {
 			//发表一条回复需要 用户id , 用户头像昵称，直接本地获取，新闻的news_id也是本页面获取
-			var to_uid = this.comment.id ;
+			var to_uid = null ;
 			if (this.type == 1) {
 				to_uid = this.currReply.id ;
 			}
@@ -177,15 +177,17 @@ export default {
 			})
 			await this.getReply();
 		},
-		//删除评论
+		//删除该回复
 		async deleteById(index) {
 			// console.log(this.commentList[index])
 			await uni.$u.http.get("/reply/deleteById/" + String(this.replyList[index].id), {custom : {auth: true}}).then(res=> {
 				// console.log(res)
 				//删除该评论及其回复
-				setTimeout(() => {
-					this.replyList.splice(index, 1)
-				},300)
+				// setTimeout(() => {
+				// 	this.replyList.splice(index, 1)
+				// },300)
+				//刷新一下回复列表 级联删除
+				this.getReply();
 				// console.log(this.commentList)
 				this.$u.toast('删除成功')
 			})

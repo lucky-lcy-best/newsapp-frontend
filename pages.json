@@ -9,30 +9,32 @@
 		    {
 				"navigationBarBackgroundColor": "#d81e06",
 				"enablePullDownRefresh":false,
-				"app-plus": {
-					"titleNView": {
-						"buttons": [ 
-							{
-								"text": "发布      ", 
-								"fontSize":"16",
-								"float": "right",
-								"color":"#fff"
-							},
-							{
-								"text": "HFUT       ", 
-								"fontSize":"13",
-								"float": "left",
-								"color":"#fff"
-							}
-						],
-						"searchInput":{
-							"align":"left",
-						    "borderRadius": "15px",
-						    "placeholder": "搜你想看的",
-						    "placeholderColor" : "#fff"
-						}
-					}
-				}
+				"navigationStyle": "custom" ,// 隐藏系统导航栏
+				"navigationBarTextStyle": "white" // 状态栏字体为白色，只能为 white-白色，black-黑色 二选一
+				// "app-plus": {
+				// 	"titleNView": {
+				// 		"buttons": [ 
+				// 			{
+				// 				"text": "发布      ", 
+				// 				"fontSize":"16",
+				// 				"float": "right",
+				// 				"color":"#fff"
+				// 			},
+				// 			{
+				// 				"text": "HFUT       ", 
+				// 				"fontSize":"13",
+				// 				"float": "left",
+				// 				"color":"#fff"
+				// 			}
+				// 		],
+				// 		"searchInput":{
+				// 			"align":"left",
+				// 		    "borderRadius": "15px",
+				// 		    "placeholder": "搜你想看的",
+				// 		    "placeholderColor" : "#fff"
+				// 		}
+				// 	}
+				// }
 		    }
 		    
 		},
@@ -68,8 +70,10 @@
             "path" : "pages/anti-epidemic/anti-epidemic",
             "style" :                                                                                    
             {
-                "navigationBarTitleText": "",
-                "enablePullDownRefresh": false
+                "navigationBarTitleText": "疫情防控",
+                "enablePullDownRefresh": false,
+				"navigationStyle": "default" ,
+				"navigationBarTextStyle": "black" // 状态栏字体为白色，只能为 white-白色，black-黑色 二选一
             }
             
         }
@@ -124,10 +128,76 @@
 			    "navigationBarTextStyle": "black"
 			}
 		}
+        ,{
+            "path" : "pages/center/history",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "历史记录",
+                "enablePullDownRefresh": false,
+				"navigationStyle": "default" ,
+				"navigationBarTextStyle": "black"
+            }
+            
+        }
+        ,{
+            "path" : "pages/center/like",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "我的收藏",
+                "enablePullDownRefresh": false,
+				"navigationStyle": "default" ,
+				"navigationBarTextStyle": "black"
+            }
+            
+        }
+        ,{
+            "path" : "pages/center/message",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "我的消息",
+                "enablePullDownRefresh": false,
+				"navigationStyle": "default" ,
+				"navigationBarTextStyle": "black"
+            }
+            
+        }
+        ,{
+            "path" : "pages/news-detail/author",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "发布者信息",
+                "enablePullDownRefresh": false,
+				"navigationStyle": "default" ,
+				"navigationBarTextStyle": "black"
+            }
+            
+        }
+        ,{
+            "path" : "pages/news-titles/searchContent",
+            "style" :                                                                                    
+            {
+                "navigationBarBackgroundColor": "white",
+                "enablePullDownRefresh":false,
+                "navigationStyle": "custom" ,// 隐藏系统导航栏
+                "navigationBarTextStyle": "black" // 状态栏字体为白色，只能为 white-白色，black-黑色 二选一
+            }
+            
+        }
+        ,{
+            "path" : "pages/center/author",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "关注用户",
+                "enablePullDownRefresh": false,
+				"navigationStyle": "default" ,
+				"navigationBarTextStyle": "black"
+            }
+            
+        }
     ],
 	"globalStyle": {
 		"navigationBarTextStyle": "white",
-		"navigationBarTitleText": "雨哥头条",
+		"navigationBarTitleText": "LuckyNews",
 		"navigationBarBackgroundColor": "#ffffff",
 		"backgroundColor": "#F8F8F8",
 		//在App中，取消安卓下拉刷新灰色半弧形效果

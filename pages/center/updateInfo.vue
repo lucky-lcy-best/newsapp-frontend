@@ -1,20 +1,8 @@
 <template>
 	<view class="update">
 		<view class="uploadAvator">
-			<!-- <view class="updateav">
-				<u-avatar v-if="isUpload==false" :src="currentUser.user.avator" size="100"></u-avatar>
-				<u-avatar v-else :src="this.user.info.avator" size="100"></u-avatar>
-				<u-button class="updateav" @click="chooseAvatar">点此换头像</u-button>
-			</view> -->
-			<!-- <view class="updateav">
-				<u-button class="updateav" @click="chooseAvatar">
-					<u-avatar v-if="isUpload==false" :src="currentUser.user.avator" size="100"></u-avatar>
-					<u-avatar v-else :src="this.user.info.avator" size="100"></u-avatar>
-				</u-button>
-			</view> -->
 			<u-avatar v-if="isUpload==false" :src="currentUser.user.avator" size="100" @click="chooseAvatar"></u-avatar>
 			<u-avatar v-else :src="this.user.info.avator" size="100" @click="chooseAvatar"></u-avatar>
-			
 		</view>
 		<!-- <image src="https://newsapp-lucky.oss-cn-hangzhou.aliyuncs.com/avator/2022/03/5e53b43cd1004ad8ab98b42af641dd301648042688(1).png"></image> -->
 		<u--form labelPosition="left" :model="user" :rules="rules" ref="form1">

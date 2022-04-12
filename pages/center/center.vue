@@ -30,14 +30,18 @@
 		
 		<view>
 			<u-cell-group>
-				<u-cell class="cell" icon="star" title="浏览历史" size="large"></u-cell>
-				<u-cell class="cell" icon="photo" title="收藏" size="large"></u-cell>
-				<u-cell class="cell" icon="coupon" title="消息通知" size="large"></u-cell>
-				<u-cell class="cell" icon="heart" title="关注" size="large"></u-cell>
-				<u-cell class="cell" icon="setting" title="关于我们" size="large"></u-cell>
-				<u-cell class="cell" icon="setting" title="用户反馈" size="large"></u-cell>
-				<u-cell class="cell" icon="setting" title="设置" size="large"></u-cell>
-				<u-cell class="cell" icon="man-delete" title="退出登录" size="large" @click="authLogout()"></u-cell>
+				<u-cell class="cell" icon="star" title="浏览历史" size="large" @click="goHistory()" isLink></u-cell>
+				<u-cell class="cell" icon="photo" title="收藏" size="large" isLink @click="goUserLike()"></u-cell>
+				<u-cell class="cell" icon="coupon" title="消息通知" size="large" isLink @click="goUserMessage()">
+					<view slot="value"class="u-slot-value" v-if="messageNum!==0">
+						<text class="num">{{messageNum}}</text>
+					</view>
+				</u-cell>
+				<u-cell class="cell" icon="heart" title="关注" size="large" isLink @click="goAuthorLike()"></u-cell>
+				<u-cell class="cell" icon="setting" title="关于我们" size="large" isLink></u-cell>
+				<u-cell class="cell" icon="setting" title="用户反馈" size="large" isLink></u-cell>
+				<u-cell class="cell" icon="setting" title="设置" size="large" isLink></u-cell>
+				<u-cell class="cell" icon="man-delete" title="退出登录" size="large" isLink @click="authLogout()"></u-cell>
 			</u-cell-group>
 		</view>
 		<!-- <view class="u-m-t-20">
@@ -55,11 +59,26 @@
 			return {
 				pic:'https://uviewui.com/common/logo.png',
 				show:true,
+				messageNum:0
 			}
 		},
 		onLoad() {
-			// if (this.currentUser.user == undefined) 
-			// this.$u.utils.isLogin()
+			// //onLoad时查看用户有多少消息尚未查看
+			// uni.$u.http.get("/reply/getNewRepliesCounts/" + String(this.currentUser.user.id), {custom : {auth: true}}).then(res=> {
+			// 	this.messageNum = res ;
+			// })
+			// .catch(err => {
+			// 	this.$u.toast('服务器异常')
+			// })
+		},
+		onShow () {
+			//onShow时查看用户有多少消息尚未查看包括点赞数（未读消息的总数）
+			uni.$u.http.get("/reply/getNewRepliesCounts/" + String(this.currentUser.user.id), {custom : {auth: true}}).then(res=> {
+				this.messageNum = res ;
+			})
+			.catch(err => {
+				this.$u.toast('服务器异常')
+			})
 		},
 		methods: {
 			//前往个人主页
@@ -80,6 +99,8 @@
 					//退出登录清除token，用户信息置为空
 					// this.$u.vuex('currentUser' , null) ;
 					this.$u.vuex('currentToken' , null) ;
+					this.messageNum = 0 ;
+					this.$u.toast('已退出登录')
 				}).catch(() =>{
 					this.$u.toast('服务器异常')
 				})
@@ -93,10 +114,33 @@
 				setTimeout(() => {
 					this.$u.route({
 						// type: 'redirect',
-						animationType: 'slide-in-right',
+						// animationType: 'slide-in-right',
 						url: 'pages/common/login/login'
 					})
 				},500)
+			},
+			goHistory() {
+				//获得历史记录
+				this.$u.route({
+					url : 'pages/center/history'
+				})
+			},
+			goUserLike() {
+				//获得历史记录
+				this.$u.route({
+					url : 'pages/center/like'
+				})
+			},
+			goUserMessage() {
+				//获得历史记录
+				this.$u.route({
+					url : 'pages/center/message'
+				})
+			},
+			goAuthorLike() {
+				this.$u.route({
+					url : 'pages/center/author'
+				})
 			}
 		}
 	}
@@ -146,5 +190,16 @@ page{
 }
 .user-box{
 	background-color: #fff;
+}
+.u-slot-value {
+	width: 60rpx; 
+	height: 50rpx;
+	background-color: rgb(255, 0, 0);
+	border-radius: 50%;
+	display: flex;
+	justify-content: center;
+	.num {
+		color: #ffffff;
+	}
 }
 </style>

@@ -30,6 +30,9 @@ export const ReplyDigg = (params, config = {}) => http.post('/reply/clickDigg', 
 // post请求，发表回复
 export const sendReply = (params, config = {}) => http.post('/reply/addReply', params, config)
 
+// post请求，插入历史记录
+export const addHistory = (params, config = {}) => http.post('/news/addHistory', params, config)
+
 
 
 

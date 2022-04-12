@@ -1,6 +1,21 @@
 <template>
 	<view>
 		<z-paging-swiper>
+			<view class="box-bg">
+				<uni-nav-bar color="#ffffff" backgroundColor="#fa0000">
+					<view class="input" @click="goSearch()">
+						<!-- <u-button text="more" size="small" class="more"></u-button> -->
+						<u--input
+						    placeholder="看你想看的"
+						    border="surround"
+							shape="circle"
+							prefixIcon="search"
+							disabled
+							disabledColor="#f5f7fa"
+							></u--input>
+					</view>
+				</uni-nav-bar>
+			</view>
 			<u-tabs
 				:list="list4"
 				lineWidth="30"
@@ -101,6 +116,14 @@
 			animationfinish(e) {
 				let current = e.detail.current;
 				this.current = current;
+			},
+			//根据关键字进行查询
+			goSearch() {
+				//跳转到搜索页面
+				uni.$u.route('/pages/news-titles/searchContent', {
+					// animationType: 'slide-in-right',
+				});
+				
 			}
 		}
 	}
@@ -109,5 +132,60 @@
 <style scoped>
 	.swiper {
 		flex: 1;
+	}
+	.box-bg {
+		background-color: #ffffff;
+		/* padding: 5px 0; */
+		
+	}
+	.input {
+		/* height: 10rpx; */
+		padding: 10rpx;
+		/* width: 400rpx; */
+	}
+	.more {
+		width: 20rpx;
+		padding-right: 100rpx;
+	}
+	.city {
+		/* #ifndef APP-PLUS-NVUE */
+		display: flex;
+		/* #endif */
+		flex-direction: row;
+		align-items: center;
+		justify-content: flex-start;
+		// width: 160rpx;
+		margin-left: 4px;
+	}
+
+	.input-view {
+		/* #ifndef APP-PLUS-NVUE */
+		display: flex;
+		/* #endif */
+		flex-direction: row;
+		// width: 500rpx;
+		flex: 1;
+		background-color: #f8f8f8;
+		height: $nav-height;
+		border-radius: 15px;
+		padding: 0 15px;
+		flex-wrap: nowrap;
+		margin: 7px 0;
+		line-height: $nav-height;
+	}
+
+	.input-uni-icon {
+		line-height: $nav-height;
+	}
+
+	.nav-bar-input {
+		height: $nav-height;
+		line-height: $nav-height;
+		/* #ifdef APP-PLUS-NVUE */
+		width: 370rpx;
+		/* #endif */
+		padding: 0 5px;
+		font-size: 12px;
+		background-color: #f8f8f8;
 	}
 </style>
