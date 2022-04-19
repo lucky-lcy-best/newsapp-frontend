@@ -13,6 +13,7 @@
 						<text class="count1">{{listItem.total}}</text>
 						<text class="grid-text">{{listItem.title2}}</text>
 						<text v-if="listItem.today < 0" class="count2">{{listItem.today}}</text>
+						<text v-else-if="listItem.today == ''" class="count2">尚未公布</text>
 						<text v-else class="count2">+{{listItem.today}}</text>
 					</view>
 					
@@ -126,23 +127,26 @@
 			//每次打开该页面请求接口也返回全国疫情数据
 			uni.$u.http.get("http://localhost:5000/epidemic/china").then(res=> {
 				// console.log(res)
-				this.list[0].total = res.input ;
-				this.list[0].today = res.input_yesterday ;
-				this.list[1].total = res.noasympto ;
-				this.list[1].today = res.noasympto_yesterday ;
-				this.list[2].total = res.today_confirm ;
-				this.list[2].today = res.today_confirm_yesterday ;
-				this.list[3].total = res.total_confirm ;
-				this.list[3].today = res.total_confirm_yesterday ;
-				this.list[4].total = res.total_dead ;
-				this.list[4].today = res.total_dead_yesterday ;
-				this.list[5].total = res.total_heal ;
-				this.list[5].today = res.total_heal_yesterday ;
+				this.list[0].total = res.total.input ;
+				this.list[0].today = res.today.input ;
+				this.list[1].total = res.extData.noSymptom ;
+				if (res.extData.incrNoSymptom != undefined) 
+					this.list[1].today = res.extData.incrNoSymptom ;
+				else 
+					this.list[1].today = '' ;
+				this.list[2].total = res.total.confirm - res.total.dead - res.total.heal;
+				this.list[2].today = res.today.storeConfirm ;
+				this.list[3].total = res.total.confirm ;
+				this.list[3].today = res.today.confirm ;
+				this.list[4].total = res.total.dead ;
+				this.list[4].today = res.today.dead ;
+				this.list[5].total = res.total.heal ;
+				this.list[5].today = res.today.heal ;
 			})
 			.catch(err => {
 				this.$u.toast('服务器异常')
 			})
-			//先将数据写入tabelData.js中
+			//先将数据写入tabelData.js中  各省市疫情数据
 			uni.$u.http.get("http://localhost:5000/epidemic/allProvinces").then(res=> {
 				// console.log(res)
 				this.columns = baseColumns

@@ -7,6 +7,20 @@
 				focus="true"></u-search>
 			</uni-nav-bar>
 		</view>
+		<!-- 搜索历史 -->
+		<view class="searchBotBox" v-if="showHistory==true">
+			<view class="ov">
+				<view class="fl">搜索历史</view>
+				<view @click="clearKey" class="fr grace-more-r grace-search-remove">
+					<u-icon name="trash" size="20"></u-icon>
+				</view>
+			</view>
+			<view class="searchHistoryBox">
+				<view class="searchHistoryBoxItem" v-for="(item,index) in searchKey" :key='index'>
+					{{item}}
+				</view>
+			</view>
+		</view>
 		<view>
 			<cell class = "item "v-for="(item,index) in searchList" :key="item.id" @click="goDetail(item)" >
 				<view v-if="item.posterUrl==undefined || item.posterUrl == ''" class="item" >
@@ -39,19 +53,40 @@
 		data() {
 			return {
 				keyword:'',
-				searchList:[]
+				searchList: [],
+				searchKey: [],
+				showHistory : false
 			};
 		},
 		onLoad() {
 			//加载搜索的历史记录
+			uni.$u.http.get('/news/getSearchHistory/'+ String(this.currentUser.user.id), { custom: { auth: true }}).then(res => {
+				this.searchKey = res
+				if (res.length != 0 ) {
+					this.showHistory = true
+				}
+				// console.log(this.newsinfo) ;
+			}).catch(err => {
+				this.$u.toast('服务器异常')
+			})
 		},
 		methods: {
 			//根据关键字查询
 			search(keyword) {
 				// console.log(keyword)
 				uni.$u.http.get('/news/getByKeyWord/' + keyword).then(res => {
-					console.log(res)
+					// console.log(res)
 					this.searchList = res ;
+					if (res.length != 0 ) {
+						this.showHistory = false
+					}
+					// console.log(this.newsinfo) ;
+				}).catch(err => {
+					this.$u.toast('服务器异常')
+				})
+				//查询的同时插入搜索历史
+				uni.$u.http.get('/news/searchHistory/'+ String(this.currentUser.user.id) + '/'+ keyword, { custom: { auth: true }}).then(res => {
+					console.log(res)
 					// console.log(this.newsinfo) ;
 				}).catch(err => {
 					this.$u.toast('服务器异常')
@@ -63,6 +98,41 @@
 					id: item.id 
 				});
 			},
+			//清除搜索历史
+			// clearKey: function() {
+			// 	var that = this;
+			// 	uni.showModal({
+			// 		title: '提示',
+			// 		content: '点击确定将删除所有历史信息，确定删除吗？',
+			// 		success: function(res) {
+			// 			if (res.confirm) {
+			// 				//调用删除接口
+			// 				uni.$u.http.get('/news/deleteSearchHistory/'+ String(this.currentUser.user.id) , { custom: { auth: true }}).then(response => {
+			// 					console.log(response)
+			// 					this.searchKey = []
+			// 					// console.log(this.newsinfo) ;
+			// 				}).catch(err => {
+			// 					this.$u.toast('服务器异常')
+			// 				})
+						
+							
+			// 			} else if (res.cancel) {
+			
+			// 			}
+			// 		}
+			// 	});
+			
+			// },
+			clearKey() {
+				uni.$u.http.get('/news/deleteSearchHistory/'+ String(this.currentUser.user.id) , { custom: { auth: true }}).then(response => {
+					console.log(response)
+					this.searchKey = []
+					// console.log(this.newsinfo) ;
+				}).catch(err => {
+					this.$u.toast('服务器异常')
+				})
+			}
+			
 		}
 	}
 </script>
@@ -165,5 +235,74 @@
 		right: 0;
 		height: 1px;
 		background-color: #eeeeee;
+	}
+	.ov {
+		overflow: hidden;
+	}
+	
+	.fl {
+		float: left;
+	}
+	
+	.fr {
+		float: right;
+	}
+	
+	.searchTopBox {
+		width: 100%;
+		background-color: #0b877f;
+		height: 100upx;
+		box-sizing: border-box;
+		padding-top: 15upx;
+	}
+	
+	.searchBoxRadius {
+		width: 90%;
+		height: 70upx;
+		background-color: #fff;
+		margin-left: 5%;
+		overflow: hidden;
+		border-radius: 35upx;
+	}
+	
+	.searchBoxIcon {
+		font-size: 40upx;
+		margin-top: 20upx;
+		margin-left: 20upx;
+		float: left;
+	}
+	
+	.searchBoxIpt {
+		height: 70upx;
+		line-height: 70upx;
+		margin-left: 20upx;
+		float: left;
+	}
+	
+	.searchBotBox {
+		width: 100%;
+		margin-top: 30upx;
+		padding: 15upx 3%;
+		box-sizing: border-box;
+	}
+	
+	.searchHistoryBox {
+		width: 100%;
+		box-sizing: border-box;
+		overflow: hidden;
+		margin-top: 40upx;
+	}
+	
+	.searchHistoryBoxItem {
+		float: left;
+		font-size: 26upx;
+		color: #666;
+		line-height: 46upx;
+		height: 46upx;
+		padding: 0 20upx;
+		border-radius: 23upx;
+		margin-left: 15upx;
+		margin-bottom: 20upx;
+		border: 1px solid #ccc;
 	}
 </style>

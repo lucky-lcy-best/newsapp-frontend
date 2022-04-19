@@ -19,9 +19,14 @@ const install = (Vue , vm) => {
 					return `${pre}${current}=${options[current]}&`
 				}, '?').slice(0,-1)
 			}
+			if (uni.getStorageSync('back_url') == 'pages/common/login/login') {
+				vm.$u.toast('账号或密码错误')
+			}
+			else {
+				vm.$u.toast('您尚未登录，请先登录')
+			}
 			//缓存当前页 用于登录或者注册之后的跳转
 			uni.setStorageSync('back_url' , route + params) ;
-			vm.$u.toast('您尚未登录，请先登录')
 			setTimeout(() => {
 				vm.$u.route({
 					type: 'redirect',

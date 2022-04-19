@@ -1,10 +1,6 @@
 <template>
-  <list>
-    <!-- 注意事项: 不能使用 index 作为 key 的唯一标识 -->
-    <cell v-for="(item, index) in dataList" :key="item.id">
-      <text>{{item.name}}</text>
-    </cell>
-  </list>
+  <view v-if="isAuthor==false">您尚未申请认证</view>
+  <view v-else>您有权限发布文章</view>
 </template>
 
 <script>
@@ -13,11 +9,16 @@
     data () {
       return {
         dataList: [{id: "1", name: 'A'}, {id: "2", name: 'B'}, {id: "3", name: 'C'}],
-		
+		isAuthor:false
       }
     },
 	onLoad() {
-		this.$u.utils.isLogin()
+		for (var i = 0 ; i < this.currentUser.authorities.length ; i++) {
+			if (this.currentUser.authorities[i].authority == 'news') {
+				this.isAuthor = true
+			}
+		}
+		console.log(this.isAuthor)
 	}
   }
 </script>

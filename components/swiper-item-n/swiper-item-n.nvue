@@ -78,34 +78,112 @@
 		},
 		methods: {
 			async queryList(pageNo, pageSize, from) {
-				if (from == 0) {
-					// 记录每次的刷新次数
-					this.refresh_count++ ;
-					await uni.$u.http.get('/getRecNews/' + String(this.tabIndex) + '/' + (this.refresh_count) +'/'+ String(pageSize)).then(res => {
-						// console.log(res);
-						this.allList.push(res) ;
-						this.$refs.paging.complete(res);
-						dataList = res ;
-					}).catch(err => {
-						this.$refs.paging.complete(false);
-					})
-				}
-				else if (from == 1) {
-					await uni.$u.http.get('/getRecNews/' + String(this.tabIndex) + '/' + (this.refresh_count) +'/'+ String(pageSize)).then(res => {
-						this.allList.push(res) ;
-						this.$refs.paging.complete(res);
-					}).catch(err => {
-						this.$refs.paging.complete(false);
-					})
-				}
-				else if (from == 3){
-					//每次往下翻到下一页时，都展示上一次请求的数据
-					if (this.refresh_count == 1 || pageNo - 1 >= this.allList.length) {
-						this.$refs.paging.complete([]);
-					}else {
-						this.$refs.paging.complete(this.allList[pageNo - 2]);
+				const token = this.currentToken
+				//未登录
+				if (!token) {
+					if (from == 0) {
+						// 记录每次的刷新次数
+						this.refresh_count++ ;
+						await uni.$u.http.get('/getRecNews/' + String(this.tabIndex) + '/' + (this.refresh_count) +'/'+ String(pageSize)).then(res => {
+							// console.log(res);
+							this.allList.push(res) ;
+							this.$refs.paging.complete(res);
+							dataList = res ;
+						}).catch(err => {
+							this.$refs.paging.complete(false);
+						})
+						
+					}
+					else if (from == 1) {
+						await uni.$u.http.get('/getRecNews/' + String(this.tabIndex) + '/' + (this.refresh_count) +'/'+ String(pageSize)).then(res => {
+							this.allList.push(res) ;
+							this.$refs.paging.complete(res);
+						}).catch(err => {
+							this.$refs.paging.complete(false);
+						})
+						
+					}
+					else if (from == 3){
+						//每次往下翻到下一页时，都展示上一次请求的数据
+						if (this.refresh_count == 1 || pageNo - 1 >= this.allList.length) {
+							this.$refs.paging.complete([]);
+						}else {
+							this.$refs.paging.complete(this.allList[pageNo - 2]);
+						}
 					}
 				}
+				//已登录
+				else {
+					//推荐新闻
+					// console.log(this.tabIndex)
+					if (this.tabIndex == 1) {
+						// console.log('from : ' ,from)
+						if (from == 0) {
+							// 记录每次的刷新次数
+							this.refresh_count++ ;
+							await uni.$u.http.get('/getRecNewsByHistory/' + String(this.currentUser.user.id) + '/' + (this.refresh_count) +'/'+ String(pageSize) , {custom :{auth : true}}).then(res => {
+								// console.log(res);
+								this.allList.push(res) ;
+								this.$refs.paging.complete(res);
+							}).catch(err => {
+								this.$refs.paging.complete(false);
+							})
+							
+						}
+						else if (from == 1) {
+							await uni.$u.http.get('/getRecNewsByHistory/' + String(this.currentUser.user.id) + '/' + (this.refresh_count) +'/'+ String(pageSize) ,  {custom :{auth : true}}).then(res => {
+								// console.log(res)
+								this.allList.push(res) ;
+								this.$refs.paging.complete(res);
+							}).catch(err => {
+								this.$refs.paging.complete(false);
+							})
+							
+						}
+						else if (from == 3){
+							//每次往下翻到下一页时，都展示上一次请求的数据
+							console.log(this.allList)
+							if (this.refresh_count == 1 || pageNo - 1 >= this.allList.length) {
+								this.$refs.paging.complete([]);
+							}else {
+								this.$refs.paging.complete(this.allList[pageNo - 2]);
+							}
+						}
+					}
+					else {
+						if (from == 0) {
+							// 记录每次的刷新次数
+							this.refresh_count++ ;
+							await uni.$u.http.get('/getRecNews/' + String(this.tabIndex) + '/' + (this.refresh_count) +'/'+ String(pageSize)).then(res => {
+								// console.log(res);
+								this.allList.push(res) ;
+								this.$refs.paging.complete(res);
+								dataList = res ;
+							}).catch(err => {
+								this.$refs.paging.complete(false);
+							})
+							
+						}
+						else if (from == 1) {
+							await uni.$u.http.get('/getRecNews/' + String(this.tabIndex) + '/' + (this.refresh_count) +'/'+ String(pageSize)).then(res => {
+								this.allList.push(res) ;
+								this.$refs.paging.complete(res);
+							}).catch(err => {
+								this.$refs.paging.complete(false);
+							})
+							
+						}
+						else if (from == 3){
+							//每次往下翻到下一页时，都展示上一次请求的数据
+							if (this.refresh_count == 1 || pageNo - 1 >= this.allList.length) {
+								this.$refs.paging.complete([]);
+							}else {
+								this.$refs.paging.complete(this.allList[pageNo - 2]);
+							}
+						}
+					}
+				}
+				
 			},
 			goDetail(item) {
 				// 带参数

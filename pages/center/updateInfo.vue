@@ -146,6 +146,7 @@ export default {
 		},
 		confirmDate(e){
 			// console.log(e)
+			console.log(e.value)
 			this.showDate = false
 			this.user.info.birth = e.value
 		},
